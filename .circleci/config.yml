@@ -52,8 +52,16 @@ jobs:
           name: setup datatabase
           command: bundle exec rails db:create db:migrate
       - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: run rspec
-          command: ./bin/rspec --format RspecJunitFormatter --out tmp/test-results/rspec.xml
+          command: |
+            ./cc-test-reporter before-build
+            ./bin/rspec --format RspecJunitFormatter --out tmp/test-results/rspec.xml
+            ./cc-test-reporter after-build --coverage-input-type simplecov --exit-code $?
       - store_artifacts:
           path: coverage/
           destination: coverage
